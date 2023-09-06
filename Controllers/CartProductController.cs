@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using veebipood.Data;
 using veebipood.Models;
 
@@ -23,23 +24,33 @@ namespace veebipood.Controllers
         [HttpPost] //добавление
         public List<CartProduct> PostProduct([FromBody] CartProduct cartproducts)
         {
+            _context.Products.Add(cartproducts.prodId);
+            _context.SaveChanges();
+
+            cartproducts.ProductId = cartproducts.prodId.Id;
+
             _context.CartProducts.Add(cartproducts);
             _context.SaveChanges();
-            return _context.CartProducts.ToList();
+            return _context.CartProducts.Include(a => a.prodId).ToList();
         }
         [HttpDelete("{id}")] //удаление
-        public List<CartProduct> DeleteCartProduct(int id)
+        public List<CartProduct> DeleteProduct(int id)
         {
-            var cartproducts = _context.CartProducts.Find(id);
+            var cartproducts = _context.CartProducts.Include(a => a.prodId).FirstOrDefault(a => a.Id == id);
 
             if (cartproducts == null)
             {
-                return _context.CartProducts.ToList();
+                return _context.CartProducts.Include(a => a.prodId).ToList();
+            }
+
+            if (cartproducts.prodId != null)
+            {
+                _context.Products.Remove(cartproducts.prodId);
             }
 
             _context.CartProducts.Remove(cartproducts);
             _context.SaveChanges();
-            return _context.CartProducts.ToList();
+            return _context.CartProducts.Include(a => a.prodId).ToList();
         }
         [HttpGet("{id}")] //вывод на экран через Ид
         public ActionResult<CartProduct> getCartProduct(int id)
@@ -53,22 +64,22 @@ namespace veebipood.Controllers
 
             return cartproducts;
         }
-        [HttpPut("{id}")]//изменение
-        public ActionResult<List<CartProduct>> putCartProduct(int id, [FromBody] CartProduct updatedCartProduct)
-        {
-            var cartproducts = _context.CartProducts.Find(id);
+        //[HttpPut("{id}")]//изменение
+        //public ActionResult<List<CartProduct>> putCartProduct(int id, [FromBody] CartProduct updatedCartProduct)
+        //{
+        //    var cartproducts = _context.CartProducts.Find(id);
 
-            if (cartproducts == null)
-            {
-                return NotFound();
-            }
+        //    if (cartproducts == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            cartproducts.Quantity = updatedCartProduct.Quantity;
+        //    cartproducts.Quantity = updatedCartProduct.Quantity;
 
-            _context.CartProducts.Update(cartproducts);
-            _context.SaveChanges();
+        //    _context.CartProducts.Update(cartproducts);
+        //    _context.SaveChanges();
 
-            return Ok(_context.Products);
-        }
+        //    return Ok(_context.Products);
+        //}
     }
 }
