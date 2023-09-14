@@ -10,5 +10,15 @@
         public int Stock { get; set; }
         public int CategoryId { get; set; }
         public Category catId { get; set; }
+        public Product(int id, string name, double price, string image, bool active, int stock, int categoryId)
+        {
+            Id = id;
+            Name = name;
+            Price = price;
+            Image = image;
+            Active = active;
+            Stock = stock;
+            CategoryId = categoryId;
+        }
     }
 }
