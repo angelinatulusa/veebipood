@@ -4,45 +4,32 @@ using veebipood.Models;
 
 namespace veebipood.Controllers
 {
-    public class ProductsController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ProductsController : ControllerBase
     {
-        private static List<Product> _tooted = new()
+        private static List<Product> _products = new()
         {
-        new Product(1,"Koola", 1.5,"a", true,12,1),
-        new Product(2,"Fanta", 1.0,"b", false,34,2),
-        new Product(3,"Sprite", 1.7,"c", true,23,1),
-        new Product(4,"Vichy", 2.0,"d", true,36,5),
-        new Product(5,"Vitamin well", 2.5,"e", true,28,7)
+        new Product(1,"Koola", 1.5, "Koola.png", true, 5, 1),
+        new Product(2,"Fanta", 1.0, "Fanta.png", false, 1, 1),
+        new Product(3,"Sprite", 1.7, "Sprite.png",true, 7, 1),
+        new Product(4,"Vichy", 2.0, "Vichy.png", true, 14, 1),
+        new Product(5,"Vitamin well", 2.5, "Vitamin_well.png", true , 3, 1)
         };
 
         // https://localhost:4444/tooted
         [HttpGet]
         public List<Product> Get()
         {
-            return _tooted;
+            return _products;
         }
 
         // https://localhost:4444/tooted/kustuta/0
-        [HttpGet("kustuta/{index}")]
+        [HttpDelete("kustuta/{index}")]
         public List<Product> Delete(int index)
         {
-            _tooted.RemoveAt(index);
-            return _tooted;
-        }
-
-        [HttpGet("kustuta2/{index}")]
-        public string Delete2(int index)
-        {
-            _tooted.RemoveAt(index);
-            return "Kustutatud!";
-        }
-
-        [HttpGet("lisa/{id}/{nimi}/{hind}/{aktiivne}")]
-        public List<Product> Add(int id, string nimi, double hind, string pilt, bool aktiivne, int varu, int katId)
-        {   
-            Product toode = new Product(id, nimi, hind,pilt, aktiivne,varu,katId);
-            _tooted.Add(toode);
-            return _tooted;
+            _products.RemoveAt(index);
+            return _products;
         }
     }
 }
