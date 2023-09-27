@@ -12,26 +12,19 @@ function App() {
   const [isUsd, setUsd] = useState(false);
 
   useEffect(() => {
-    fetch("https://localhost:7168/api/Products")
+    fetch("https://localhost:7168/Products")
       .then(res => res.json())
       .then(json => setProducts(json));
   }, []);
 
   function kustuta(index) {
-    fetch("https://localhost:7168/api/Products/kustuta/" + index, {"method": "DELETE"})
-      .then(res => res.json())
-      .then(json => setProducts(json));
+    fetch("https://localhost:7168/Products/kustuta/" + index)
+    .then(res => res.json())
+    .then(json => setProducts(json));
   }
 
-  // function tellida(index) {
-  //   let summString = products[index].price.toString();
-  //   fetch("https://localhost:7168/api/Products/pay/" + summString, {"method": "GET"})
-  //     .then(res => res.json())
-  //     .then(json => setProducts(json));
-  // }
-
   function lisa() {
-    fetch(`https://localhost:7168/api/Products/lisa/${Number(idRef.current.value)}/${nameRef.current.value}/${Number(priceRef.current.value)}/${isActiveRef.current.checked}/${Number(stockRef.current.value)}`, {"method": "POST"})
+    fetch(`https://localhost:7168/Products/lisa/${Number(idRef.current.value)}/${nameRef.current.value}/${(priceRef.current.value)}/${(isActiveRef.current.checked)}/${stockRef.current.value}`, {"method": "POST"})
       .then(res => res.json())
       .then(json => setProducts(json));
   }
@@ -39,7 +32,7 @@ function App() {
   function dollariteks() {
     const kurss = 1.1;
     setUsd(true);
-    fetch("https://localhost:7168/api/Products/hind-dollaritesse/" + kurss, {"method": "PATCH"})
+    fetch("https://localhost:7168/Products/hind-dollaritesse/" + kurss)
       .then(res => res.json())
       .then(json => setProducts(json));
   }
@@ -47,7 +40,7 @@ function App() {
   function eurodeks() {
     const kurss = 0.9091;
     setUsd(false);
-    fetch("https://localhost:7168/api/Products/hind-eurosse/" + kurss, {"method": "PATCH"})
+    fetch("https://localhost:7168/Products/hind-dollaritesse/" + kurss)
       .then(res => res.json())
       .then(json => setProducts(json));
   }
@@ -84,7 +77,7 @@ function App() {
           <td>{product.price.toFixed(2)}</td>
           <td>{product.stock}</td>
           <td><button onClick={() => kustuta(index)}>Kustuta</button></td>
-          {/* <td><button onClick={() => tellida(index)}>Pay</button></td> */}
+          {<td><button>Tellida</button></td> }
         </table>)}
     </div>
   );

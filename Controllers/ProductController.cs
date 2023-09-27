@@ -7,62 +7,23 @@ namespace veebipood.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class ProductController : Controller
+    public class ProductController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        public ProductController(ApplicationDbContext context)
+        private static Product _product = new Product(1, "Koola", 1.5, true, 4);
+
+        // GET: toode
+        [HttpGet]
+        public Product GetToode()
         {
-            _context = context;
+            return _product;
         }
 
-        [HttpGet] //вывод на экран
-        public List<Product> GetProducts()
+        // GET: toode/suurenda-hinda
+        [HttpGet("suurenda-hinda")]
+        public Product SuurendaHinda()
         {
-            var product = _context.Products.Include(a => a.catId).ToList();
-            return product;
-        }
-        [HttpPost] //добавление
-        public List<Product> PostProduct([FromBody] Product products)
-        {
-            _context.Categories.Add(products.catId);
-            _context.SaveChanges();
-
-            products.CategoryId = products.catId.Id;
-
-            _context.Products.Add(products);
-            _context.SaveChanges();
-            return _context.Products.Include(a => a.catId).ToList();
-        }
-        [HttpDelete("{id}")] //удаление
-        public List<Product> DeleteProduct(int id)
-        {
-            var products = _context.Products.Include(a => a.catId).FirstOrDefault(a => a.Id == id);
-
-            if (products == null)
-            {
-                return _context.Products.Include(a => a.catId).ToList();
-            }
-
-            if (products.catId != null)
-            {
-                _context.Categories.Remove(products.catId);
-            }
-
-            _context.Products.Remove(products);
-            _context.SaveChanges();
-            return _context.Products.Include(a => a.catId).ToList();
-        }
-        [HttpGet("{id}")] //вывод на экран через Ид
-        public ActionResult<Product> GetAuthor(int id)
-        {
-            var products = _context.Products.Include(a => a.catId).FirstOrDefault(a => a.Id == id);
-
-            if (products == null)
-            {
-                return NotFound();
-            }
-
-            return products;
+            _product.Price = _product.Price + 1;
+            return _product;
         }
     }
 }
