@@ -44,6 +44,16 @@ function App() {
       .then(res => res.json())
       .then(json => setProducts(json));
   }
+  function tellida(sum) {
+    fetch(`https://localhost:7168/Payment/${sum}`)
+      .then(res => res.json())
+      .then(paymentLink => {
+        window.location.href = paymentLink;
+      })
+      .catch(error => {
+        console.error("Maksmine viga", error);
+      });
+  }
 
   return (
     <div className="App">
@@ -77,7 +87,7 @@ function App() {
           <td>{product.price.toFixed(2)}</td>
           <td>{product.stock}</td>
           <td><button onClick={() => kustuta(index)}>Kustuta</button></td>
-          {<td><button>Tellida</button></td> }
+          <td><button onClick={() => tellida(product.price)}>Tellida</button></td>
         </table>)}
     </div>
   );
