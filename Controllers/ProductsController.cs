@@ -42,7 +42,7 @@ namespace veebipood.Controllers
             return Ok();
         }
 
-        [HttpPost("lisa/{id}/{name}/{price}/{aktiivne}/{stock}")]
+        [HttpPost("lisa")]
         public IActionResult Add([FromBody] Product product)
         {
             if (product == null)
@@ -50,9 +50,27 @@ namespace veebipood.Controllers
                 return BadRequest("Invalid product data.");
             }
 
-            _context.Products.Add(product);
-            _context.SaveChanges();
-            return Ok(product);
+            try
+            {
+                _context.Products.Add(product);
+                _context.SaveChanges();
+
+                // После успешного сохранения, вернуть HTTP 201 Created с созданным объектом
+                return CreatedAtAction("Get", new { id = product.Id }, product);
+            }
+            catch (DbUpdateException ex)
+            {
+                // Вывести информацию об ошибке
+                Console.WriteLine("DbUpdateException: " + ex.Message);
+
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine("Inner Exception: " + ex.InnerException.Message);
+                }
+
+                // Если произошла ошибка при сохранении, вернуть HTTP 500 Internal Server Error
+                return StatusCode(500, "Error while saving data.");
+            }
         }
 
         [HttpPatch("hind-dollaritesse/{kurss}")]

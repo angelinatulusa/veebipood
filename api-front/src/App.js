@@ -43,7 +43,7 @@ function lisa() {
     id: Number(idRef.current.value),
     name: nameRef.current.value,
     price: Number(priceRef.current.value),
-    aktiivne: isActiveRef.current.checked,
+    isActive: isActiveRef.current.checked,
     stock: Number(stockRef.current.value)
   };
 
@@ -55,7 +55,17 @@ function lisa() {
     body: JSON.stringify(newProduct)
   })
     .then(res => res.json())
-    .then(json => setTooted(json));
+    .then(json => setTooted(json))
+    .catch(error => {
+      console.error("Viga toote lisamisel:", error);
+    });
+
+  // Очищаем поля формы
+  idRef.current.value = "";
+  nameRef.current.value = "";
+  priceRef.current.value = "";
+  stockRef.current.value = "";
+  isActiveRef.current.checked = false;
 }
 
   function dollariteks() {
@@ -67,7 +77,7 @@ function lisa() {
   }
 
   function eurodeks() {
-    const kurss = 0.9091;
+    const kurss = 1.1;
     setUsd(false);
     fetch("https://localhost:7168/Products/hind-eurosse/" + kurss, { method: "PATCH" })
       .then(res => res.json())
