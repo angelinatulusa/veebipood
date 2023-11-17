@@ -10,63 +10,61 @@ function App() {
   const isActiveRef = useRef();
   const stockRef = useRef();
 
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('https://localhost:7168/Products');
+      const data = await response.json();
+      const activeProducts = data.filter((toode) => toode.active);
+      setTooted(data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
+
   useEffect(() => {
-    fetch("https://localhost:7168/Products")
-      .then(res => res.json())
-      .then(json => setTooted(json));
+    fetchProducts();
   }, []);
 
   function kustuta(index) {
     if (index >= 0 && index < tooted.length) {
       const id = tooted[index].id;
       fetch(`https://localhost:7168/Products/kustuta/${id}`, { method: "DELETE" })
-      .then(res => {
-        if (res.status === 204) {
-          console.log("Toode edukalt kustutatud");
-          setTooted(prevTooted => prevTooted.filter(toode => toode.id !== id));
-        } else if (res.status === 404) {
-          console.error("Toodet ei leitud");
-        } else {
-          console.error("Toote kustutamisel ilmnes viga");
-        }
-      })
-      .catch(error => {
-        console.error("Viga päringu tegemisel:", error);
-      });
-  } else {
-    console.error("Kehtetu indeks toote kustutamiseks.");
+        .then(res => {
+          if (res.status === 204) {
+            console.log("Toode edukalt kustutatud");
+            setTooted(prevTooted => prevTooted.filter(toode => toode.id !== id));
+          }
+        })
+        .catch(error => {
+          console.error("Viga päringu tegemisel:", error);
+        });
+        fetchProducts();
+    } else {
+      console.error("Kehtetu indeks toote kustutamiseks.");
+    }
   }
 
-}
-function lisa() {
-  const newProduct = {
-    id: Number(idRef.current.value),
-    name: nameRef.current.value,
-    price: Number(priceRef.current.value),
-    isActive: isActiveRef.current.checked,
-    stock: Number(stockRef.current.value)
+  const lisa = async () => {
+    const newProduct = {
+      name: nameRef.current.value,
+      price: Number(priceRef.current.value),
+      isActive: isActiveRef.current.checked,
+      stock: Number(stockRef.current.value)
+    };
+
+    try {
+      await fetch('https://localhost:7168/Products/lisa', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newProduct),
+      });
+      fetchProducts();
+    } catch (error) {
+      console.error('Error adding product:', error);
+    }
   };
-
-  fetch("https://localhost:7168/Products/lisa", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(newProduct)
-  })
-    .then(res => res.json())
-    .then(json => setTooted(json))
-    .catch(error => {
-      console.error("Viga toote lisamisel:", error);
-    });
-
-  // Очищаем поля формы
-  idRef.current.value = "";
-  nameRef.current.value = "";
-  priceRef.current.value = "";
-  stockRef.current.value = "";
-  isActiveRef.current.checked = false;
-}
 
   function dollariteks() {
     const kurss = 1.1;
@@ -84,26 +82,23 @@ function lisa() {
       .then(json => setTooted(json));
   }
 
-  function maksa(sum) {
-    fetch(`https://localhost:7168/Products/pay/${sum}`)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return res.json();
-      })
-      .then(paymentLink => {
-        window.location.href = paymentLink;
-      })
-      .catch(error => {
-        console.error("Viga maksmisel:", error);
-      });
+  async function maksa(summ) {
+    try {
+      const response = await fetch(`https://localhost:7168/Products/pay/${summ}`);
+      if (response.ok) {
+        let payLink = await response.text();
+        payLink = payLink.replace(/^"|"$/g, '');
+        window.open(payLink, '_blank');
+      } else {
+        console.error('Payment failed.');
+      }
+    } catch (error) {
+      console.error('Error making payment:', error);
+    }
   }
 
   return (
     <div className="App">
-      <label>ID</label> <br />
-      <input ref={idRef} type="number" /> <br />
       <label>Nimi</label> <br />
       <input ref={nameRef} type="text" /> <br />
       <label>Hind</label> <br />
@@ -118,12 +113,12 @@ function lisa() {
       {tooted.map((toode, index) => (
         <div key={index}>
           <table id="customers">
-          <td>{toode.id}</td>
-          <td>{toode.name}</td>
-          <td>{toode.price}</td>
-          <button onClick={() => kustuta(index)}>x</button>
-          <button onClick={() => maksa(toode.price)}>maksa</button> 
-      </table>
+            <td>{toode.id}</td>
+            <td>{toode.name}</td>
+            <td>{toode.price}</td>
+            <button onClick={() => kustuta(index)}>x</button>
+            <button onClick={() => maksa(toode.price)}>maksa</button>
+          </table>
         </div>
       ))}
     </div>

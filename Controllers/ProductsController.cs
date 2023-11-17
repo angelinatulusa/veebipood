@@ -43,34 +43,17 @@ namespace veebipood.Controllers
         }
 
         [HttpPost("lisa")]
-        public IActionResult Add([FromBody] Product product)
+        public IActionResult PostProduct([FromBody] Product product)
         {
             if (product == null)
             {
                 return BadRequest("Invalid product data.");
             }
 
-            try
-            {
-                _context.Products.Add(product);
-                _context.SaveChanges();
+            _context.Products.Add(product);
+            _context.SaveChanges();
 
-                // После успешного сохранения, вернуть HTTP 201 Created с созданным объектом
-                return CreatedAtAction("Get", new { id = product.Id }, product);
-            }
-            catch (DbUpdateException ex)
-            {
-                // Вывести информацию об ошибке
-                Console.WriteLine("DbUpdateException: " + ex.Message);
-
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine("Inner Exception: " + ex.InnerException.Message);
-                }
-
-                // Если произошла ошибка при сохранении, вернуть HTTP 500 Internal Server Error
-                return StatusCode(500, "Error while saving data.");
-            }
+            return Ok();
         }
 
         [HttpPatch("hind-dollaritesse/{kurss}")]
@@ -96,16 +79,9 @@ namespace veebipood.Controllers
             _context.SaveChanges();
             return Ok(products);
         }
-        [HttpGet("pay/{sum}/{id}")]
-        public async Task<IActionResult> MakePayment(string sum, int id)
+        [HttpGet("pay/{sum}")]
+        public async Task<IActionResult> MakePayment(string sum)
         {
-            var product = _context.Products.Find(id);
-
-            if (product == null || product.Stock <= 0)
-            {
-                return BadRequest("Invalid product or out of stock.");
-            }
-
             var paymentData = new
             {
                 api_username = "e36eb40f5ec87fa2",
@@ -121,7 +97,7 @@ namespace veebipood.Controllers
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var client = new HttpClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", "ZTM2ZWI0MGY1ZWM4N2ZhMjo3YjkxYTNiOWU1Yjc0NTI0YzJlOWZjMjgyZjhhYzhjZA==");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", "ZTM2ZWI0MGY1ZWM4N2ZhMjo3YjkxYTNiOWUxYjc0NTI0YzJlOWZjMjgyZjhhYzhjZA==");
 
             var response = await client.PostAsync("https://igw-demo.every-pay.com/api/v4/payments/oneoff", content);
 
@@ -131,18 +107,7 @@ namespace veebipood.Controllers
                 var jsonDoc = JsonDocument.Parse(responseContent);
                 var paymentLink = jsonDoc.RootElement.GetProperty("payment_link");
 
-                // Уменьшить количество товара в наличии
-                product.Stock--;
-
-                // Если товара больше нет в наличии, отметить его как неактивный
-                if (product.Stock == 0)
-                {
-                    product.Active = false;
-                }
-
-                _context.SaveChanges();
-
-                return Ok(paymentLink.GetString());
+                return Ok(paymentLink);
             }
             else
             {
