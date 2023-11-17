@@ -99,6 +99,17 @@ function App() {
 
   return (
     <div className="App">
+      {tooted.map((toode, index) => (
+        <div key={index}>
+          <table id="customers">
+            <td>{toode.id}</td>
+            <td>{toode.name}</td>
+            <td>{toode.price}</td>
+            <button onClick={() => kustuta(index)} id='kustuta'>x</button>
+            <button onClick={() => maksa(toode.price)}>maksa</button>
+          </table>
+        </div>
+      ))}
       <label>Nimi</label> <br />
       <input ref={nameRef} type="text" /> <br />
       <label>Hind</label> <br />
@@ -110,17 +121,7 @@ function App() {
       <button onClick={() => lisa()}>Lisa</button>
       {isUsd === false && <button onClick={() => dollariteks()} id='Dollar'>Muuda dollariteks</button>}
       {isUsd === true && <button onClick={() => eurodeks()} id='Dollar'>Muuda eurodeks</button>}
-      {tooted.map((toode, index) => (
-        <div key={index}>
-          <table id="customers">
-            <td>{toode.id}</td>
-            <td>{toode.name}</td>
-            <td>{toode.price}</td>
-            <button onClick={() => kustuta(index)}>x</button>
-            <button onClick={() => maksa(toode.price)}>maksa</button>
-          </table>
-        </div>
-      ))}
+      
     </div>
   );
 }
